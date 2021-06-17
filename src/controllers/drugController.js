@@ -51,7 +51,30 @@ const toogle_availability = async (req, res) => {
   }
 };
 
+const delete_drug = async (req, res) => {
+  try {
+    const { drug_name } = req.params;
+    const drug = await Drug.findOneAndDelete({
+      name: drug_name,
+      store: req.body.store,
+    });
+    if (!drug) throw new Error(`The drug ${drug_name} does not exist.`);
+    res.status(200).send({
+      status: "success",
+      message: `The drug ${drug_name} has been sucessfully deleted.`,
+      body: {},
+    });
+  } catch (e) {
+    res.status(409).send({
+      status: "failure",
+      message: e.message,
+      body: {},
+    });
+  }
+};
+
 module.exports = {
   add_drug,
   toogle_availability,
+  delete_drug,
 };
