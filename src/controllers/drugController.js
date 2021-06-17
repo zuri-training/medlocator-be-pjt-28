@@ -3,6 +3,14 @@ const Drug = require("../models/Drug");
 const add_drug = async (req, res) => {
   try {
     const { drug_info } = req.body;
+    const drug_saved = await Drug.findOne({
+      name: drug_info.name,
+      store: req.body.store,
+    });
+    if (drug_saved)
+      throw new Error(
+        `The drug ${drug_info.name} has been added by you previously`
+      );
     const new_drug = new Drug(drug_info);
     const drug = await new_drug.save();
     res.status(201).send({
