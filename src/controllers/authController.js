@@ -89,7 +89,6 @@ exports.protect = async (req, res, next) => {
     } else if (req.cookies && req.cookies.jwt) {
       token = req.cookies.jwt;
     }
-    console.log(req.cookies);
 
     if (!token) {
       throw new Error('You are not logged in. Login to get access');
