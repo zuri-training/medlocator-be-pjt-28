@@ -38,12 +38,6 @@ const storeSchema = new Schema({
     type: String,
     required: true,
   },
-  drugs: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Drug',
-    },
-  ],
   contact: {
     owner: {
       type: String,
