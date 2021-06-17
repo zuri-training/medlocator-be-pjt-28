@@ -21,8 +21,8 @@ const drugSchema = new Schema({
     type: Number,
     trim: true,
     required: true,
-    maxlength: 7,
-    minlength: 1,
+    max: 1000000,
+    min: 1,
   },
   available: {
     type: Boolean,
@@ -38,7 +38,7 @@ const drugSchema = new Schema({
 drugSchema.methods.toJSON = function () {
   const drug_json = this.toObject();
   delete drug_json._id;
-  delete drug_json._v;
+  delete drug_json.__v;
   return drug_json;
 };
 
