@@ -11,7 +11,7 @@ const add_drug = async (req, res) => {
       throw new Error(
         `The drug ${drug_info.name} has been added by you previously`
       );
-    const new_drug = new Drug(drug_info);
+    const new_drug = new Drug({...drug_info, available: true});
     const drug = await new_drug.save();
     res.status(201).send({
       status: "success",
