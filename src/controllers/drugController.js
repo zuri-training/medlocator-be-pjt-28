@@ -45,24 +45,28 @@ const add_drug = async (req, res, next) => {
   }
 };
 
-const toogle_availability = async (req, res) => {
+const toogle_availability = async (req, res, next) => {
   try {
     const { new_data } = req.body;
     const drug = await Drug.findOne({
       name: new_data.name,
-      store: req.body.store,
+      store: req.store.id,
     });
     if (!drug) throw new Error(`No drug named ${new_data.name} exists.`);
     drug.available = new_data.available;
     await drug.save();
-    res.status(200).send({
+
+    req.api_res = {
       status: "success",
+      code: 200,
       message: `The drug's availability status has successfully been changed to ${new_data.available}.`,
       body: {},
-    });
+    };
+    next()
   } catch (e) {
     res.status(409).send({
       status: "failure",
+      code: 409,
       message: e.message,
       body: {},
     });
@@ -74,7 +78,7 @@ const delete_drug = async (req, res) => {
     const { drug_name } = req.params;
     const drug = await Drug.findOneAndDelete({
       name: drug_name,
-      store: req.body.store,
+      store: req.store.id,
     });
     if (!drug) throw new Error(`The drug ${drug_name} does not exist.`);
     res.status(200).send({
