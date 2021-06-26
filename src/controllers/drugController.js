@@ -28,6 +28,7 @@ const add_drug = async (req, res, next) => {
       store: req.store.id,
     });
     const drug = await new_drug.save();
+
     req.api_res = {
       status: "success",
       code: 201,
@@ -62,7 +63,7 @@ const toogle_availability = async (req, res, next) => {
       message: `The drug's availability status has successfully been changed to ${new_data.available}.`,
       body: {},
     };
-    next()
+    next();
   } catch (e) {
     res.status(409).send({
       status: "failure",
@@ -73,7 +74,7 @@ const toogle_availability = async (req, res, next) => {
   }
 };
 
-const delete_drug = async (req, res) => {
+const delete_drug = async (req, res, next) => {
   try {
     const { drug_name } = req.params;
     const drug = await Drug.findOneAndDelete({
@@ -81,14 +82,18 @@ const delete_drug = async (req, res) => {
       store: req.store.id,
     });
     if (!drug) throw new Error(`The drug ${drug_name} does not exist.`);
-    res.status(200).send({
+
+    req.api_res = {
       status: "success",
+      code: 200,
       message: `The drug ${drug_name} has been sucessfully deleted.`,
       body: {},
-    });
+    };
+    next();
   } catch (e) {
     res.status(409).send({
       status: "failure",
+      code: 409,
       message: e.message,
       body: {},
     });
