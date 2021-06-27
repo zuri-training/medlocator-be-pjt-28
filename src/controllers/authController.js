@@ -1,12 +1,35 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const Store = require('../models/Store');
 
+// Email Service
+const emailService = async ({ email, subject, message }) => {
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    auth: {
+      user: process.env.EMAIL_USENAME,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_SENDER,
+    to: email,
+    subject,
+    text: message,
+  });
+};
+
+// Generate JWT token
 const genToken = ({ _id: id }) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+// Send JWT token in response body
 const sendToken = (store, statusCode, res) => {
   const token = genToken(store);
 
@@ -104,6 +127,97 @@ exports.protect = async (req, res, next) => {
     req.store = store;
 
     next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Send Reset Token via email
+// @route POST api/v1/auth/forgot-password
+// @access Public
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new Error('Provide an email');
+    }
+
+    const store = await Store.findOne({ email });
+
+    if (!store) {
+      throw new Error('There is no store with this email address');
+    }
+
+    const resetToken = store.createPasswordResetToken();
+
+    await store.save({
+      validateBeforeSave: false,
+    });
+
+    const RESET_URL = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/auth/reset-password/${resetToken}`;
+
+    let message = `
+      Forgot your password? Send a patch request with your new password to: <RESET_TOKEN_URL>. If you did not make this request, please ignore this email
+    `;
+
+    const emailOptions = {
+      email: store.email,
+      subject: 'Your password Reset Token (Expires in 10mins)',
+      message: message.replace('<RESET_TOKEN_URL>', RESET_URL).trim(),
+    };
+
+    try {
+      await emailService(emailOptions);
+      res.status(200).json({
+        status: 'success',
+        message: 'Token Sent',
+      });
+    } catch (err) {
+      store.passwordResetToken = undefined;
+      store.passwordResetTokenExpires = undefined;
+      await store.save({ validateBeforeSave: false });
+
+      return next(
+        new Error('There was an error sending the email, try again later')
+      );
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc Reset Password
+// @route PATCH api/v1/auth/forgot-password
+// @access Public
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { password, passwordConfirm } = req.body;
+
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(req.params.resetToken)
+      .digest('hex');
+
+    const store = await Store.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!store) {
+      throw new Error('Invalid or Expired Token');
+    }
+    store.password = password;
+    store.passwordConfirm = passwordConfirm;
+    store.passwordResetToken = undefined;
+    store.passwordResetTokenExpires = undefined;
+
+    await store.save();
+    sendToken(store, 200, res);
   } catch (err) {
     next(err);
   }
