@@ -100,9 +100,38 @@ const delete_drug = async (req, res, next) => {
   }
 };
 
+const get_drug = async (req, res, next) => {
+  try {
+    const { drug_name } = req.params;
+    const drug = await Drug.findOne({
+      name: drug_name,
+      store: req.store.id,
+    });
+    if (!drug) throw new Error(`The drug ${drug_name} does not exist.`);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drug ${drug_name} has been sucessfully found and returned.`,
+      body: {
+        drug,
+      },
+    };
+    next();
+  } catch (e) {
+    res.status(409).send({
+      status: "failure",
+      code: 409,
+      message: e.message,
+      body: {},
+    });
+  }
+};
+
 module.exports = {
   respondJSON,
   add_drug,
   toogle_availability,
   delete_drug,
+  get_drug,
 };

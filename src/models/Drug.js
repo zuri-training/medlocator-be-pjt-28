@@ -5,6 +5,7 @@ const drugSchema = new Schema({
     type: String,
     trim: true,
     required: true,
+    uniqiue: true,
     maxlength: 20,
     minlength: 1,
   },
