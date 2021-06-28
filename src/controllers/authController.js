@@ -2,9 +2,11 @@ const jwt = require('jsonwebtoken');
 
 const Store = require('../models/Store');
 
+const {JWT_SECRET, JWT_EXPIRES_IN, JWT_COOKIE_EXPIRES, NODE_ENV} = require('../config/constants');
+
 const genToken = ({ _id: id }) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  jwt.sign({ id }, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
   });
 
 const sendToken = (store, statusCode, res) => {
@@ -13,9 +15,9 @@ const sendToken = (store, statusCode, res) => {
   res.cookie('jwt', token, {
     expires: new Date(
       Date.now() +
-        parseInt(process.env.JWT_COOKIE_EXPIRES, 10) * 24 * 60 * 60 * 1000
+        parseInt(JWT_COOKIE_EXPIRES, 10) * 24 * 60 * 60 * 1000
     ),
-    ...(process.env.NODE_ENV === 'production' && {
+    ...(NODE_ENV === 'production' && {
       secure: true,
     }),
     httpOnly: true,
@@ -94,7 +96,7 @@ exports.protect = async (req, res, next) => {
       throw new Error('You are not logged in. Login to get access');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const store = await Store.findById(decoded.id);
 
     if (!store) {
