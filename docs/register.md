@@ -2,7 +2,7 @@
 
 Used to collect a Token for a registered User.
 
-**URL** : `/api/v1/user/register/`
+**URL** : `/api/v1/user/register`
 
 **Method** : `POST`
 

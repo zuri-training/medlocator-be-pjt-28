@@ -7,7 +7,7 @@
 Open endpoints require no Authentication.
 
 * [Register](register.md) : `POST /api/v1/user/register`
-* [Login](login.md) : `POST /api/v1/user/login/`
+* [Login](login.md) : `POST /api/v1/user/login`
 
 ## Endpoints that require Authentication
 
@@ -19,4 +19,4 @@ request. A Token can be acquired from the Login view above.
 Each endpoint manipulates or displays information related to the User whose
 Token is provided with the request:
 
-* [Logout](logout.md) : `GET /api/v1/user/logout/`
+* [Logout](logout.md) : `GET /api/v1/user/logout`
