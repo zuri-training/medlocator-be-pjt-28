@@ -20,6 +20,7 @@ app.use(cookieParser());
 
 // Initialize middleware
 app.use(express.json());
+app.use(express.urlencoded());
 
 // Handle all routes
 app.use('/', router);
