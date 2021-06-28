@@ -1,6 +1,6 @@
 # Register a Store
 
-Used to collect a Token for a registered User.
+Pharmacy store owners register their store on the app and receive a token.
 
 **URL** : `/api/v1/user/register`
 
