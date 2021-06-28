@@ -13,7 +13,7 @@ const storeSchema = new Schema({
     required: [true, 'Enter an email'],
     validate: {
       validator: function (value) {
-        return /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value.toLowerCase());
+        return /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,}\.*[a-zA-Z]*$/.test(value.toLowerCase());
       },
       message: 'Enter a valid email',
     },
