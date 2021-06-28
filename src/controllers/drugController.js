@@ -1,16 +1,5 @@
 const Drug = require("../models/Drug");
 
-const respondJSON = (req, res) => {
-  const { status, code, message, body } = req.api_res;
-  const res_data = {
-    status,
-    code,
-    message,
-    body,
-  };
-  res.status(code).json(res_data);
-};
-
 const add_drug = async (req, res, next) => {
   try {
     const { drug_info } = req.body;
@@ -179,7 +168,6 @@ const update_drugs = async (req, res, next) => {
 };
 
 module.exports = {
-  respondJSON,
   add_drug,
   toogle_availability,
   delete_drug,

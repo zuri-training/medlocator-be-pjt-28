@@ -1,12 +1,12 @@
 const { Router } = require("express");
+const respondJSON = require("../controllers/responseHandler");
 const {
-  respondJSON,
   add_drug,
   toogle_availability,
   delete_drug,
   get_drug,
   get_drugs,
-  update_drugs
+  update_drugs,
 } = require("../controllers/drugController");
 const router = Router();
 
@@ -15,6 +15,6 @@ router.put("/available", toogle_availability, respondJSON);
 router.delete("/delete/:drug_name", delete_drug, respondJSON);
 router.get("/:drug_name", get_drug, respondJSON);
 router.get("/", get_drugs, respondJSON);
-router.put("/update/:drug_id", update_drugs, respondJSON)
+router.put("/update/:drug_id", update_drugs, respondJSON);
 
 module.exports = router;
