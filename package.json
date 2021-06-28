@@ -4,7 +4,7 @@
   "description": "An API for the MedLocator app",
   "main": "./src/index.js",
   "scripts": {
-    "start": "node ./src/index.js",
+    "start": "node src/index.js",
     "server": "nodemon ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
