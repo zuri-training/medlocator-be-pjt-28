@@ -31,5 +31,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.13",
     "nodemailer": "^6.6.2"
+  },
+  "engines":{
+    "node": "12.18.3",
+    "npm":"6.14.6"
   }
 }
