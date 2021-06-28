@@ -152,6 +152,32 @@ const get_drugs = async (req, res, next) => {
   }
 };
 
+const update_drugs = async (req, res, next) => {
+  try {
+    const { updated_data } = req.body;
+    const { drug_id } = req.params;
+    await Drug.findByIdAndUpdate(drug_id, updated_data);
+    const drug = await Drug.findById(drug_id);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drug has been sucessfully updated.`,
+      body: {
+        drug,
+      },
+    };
+    next();
+  } catch (e) {
+    res.status(400).send({
+      status: "failure",
+      code: 400,
+      message: e.message,
+      body: {},
+    });
+  }
+};
+
 module.exports = {
   respondJSON,
   add_drug,
@@ -159,4 +185,5 @@ module.exports = {
   delete_drug,
   get_drug,
   get_drugs,
+  update_drugs,
 };
