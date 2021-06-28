@@ -28,7 +28,6 @@ const add_drug = async (req, res, next) => {
       store: req.store.id,
     });
     const drug = await new_drug.save();
-
     req.api_res = {
       status: "success",
       code: 201,
@@ -119,9 +118,34 @@ const get_drug = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(409).send({
+    res.status(404).send({
       status: "failure",
-      code: 409,
+      code: 404,
+      message: e.message,
+      body: {},
+    });
+  }
+};
+
+const get_drugs = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    const start_from = (page - 1) * limit;
+    const results = await Drug.find().limit(parseInt(limit)).skip(start_from);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drugs have been sucessfully found and returned.`,
+      body: {
+        results,
+      },
+    };
+    next();
+  } catch (e) {
+    res.status(404).send({
+      status: "failure",
+      code: 404,
       message: e.message,
       body: {},
     });
@@ -134,4 +158,5 @@ module.exports = {
   toogle_availability,
   delete_drug,
   get_drug,
+  get_drugs,
 };
