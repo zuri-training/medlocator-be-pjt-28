@@ -5,7 +5,6 @@ This API handles all the backend details for the MedLocator Zuri Team 28 project
 Some of the technologies we use to build our software:
 
 - Node.js
-- React
 - MongoDB
 
 ---
@@ -18,7 +17,7 @@ Some of the features included in this app:
 
 - REST API
 - MongoDB ODM
-- Authentication via JWT or basic-auth
+- Authentication via JWT
 
 ## Prerequisites
 
@@ -30,18 +29,42 @@ Some of the features included in this app:
 1. Fork the repo.
 
 2. Clone the repo into your local machine.
+```bash
+git clone <url to repo> medlocator
+
+cd medlocator
+```
 
 3. Create an upstream on your local machine to pull the latest code from the `develop` branch of this repository
+```bash
+git remote add upstream https://github.com/zuri-training/medlocator-be=pjt-28.git/
+```
 
 3. Create a new branch on your local machine.
+```bash
+git branch dev
+```
 
 4. Switch to the branch and make all changes on that branch.
+```bash
+git checkout dev
+```
 
 5. Commit changes to the branch and push to your forked repo.
+```bash
+git add .
+
+git commit -m "message"
+
+git push origin dev
+```
 
 6. Come back to this repo and open a pull request on the `develop` branch.
 
 7. Link the pull request with your issue.
+```
+Closes #<issue-number>
+```
 
 8. Do not merge your pull request yourself. Wait for review and merging.
 
@@ -69,4 +92,5 @@ This should connect to your MongoDB, start the Express server and allow you to t
 
 ## User Guide
 
-In progress.
+Check the [API documentation](docs/README.md) for more info.  
+Still being updated...
