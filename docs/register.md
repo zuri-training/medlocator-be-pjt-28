@@ -1,4 +1,4 @@
-# Login
+# Register a Store
 
 Used to collect a Token for a registered User.
 
