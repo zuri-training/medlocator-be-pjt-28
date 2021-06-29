@@ -58,7 +58,7 @@ const sendToken = (store, statusCode, res) => {
 
 // @desc  Register a store
 // @route POST /api/v1/auth/register
-// @access Private
+// @access Public
 
 exports.register = async (req, res, next) => {
   try {
@@ -82,7 +82,7 @@ exports.register = async (req, res, next) => {
 
 // @desc  Login a Store
 // @route POST /api/v1/auth/login
-// @access Private
+// @access Public
 
 exports.login = async (req, res, next) => {
   try {
@@ -125,6 +125,12 @@ exports.protect = async (req, res, next) => {
 
     if (!store) {
       throw new Error('Token no longer exists');
+    }
+
+    if (store.passwordChangedAfter(decoded.iat)) {
+      throw new Error(
+        'Password was changed recently, login again to get access'
+      );
     }
 
     req.store = store;

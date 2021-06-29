@@ -91,4 +91,12 @@ storeSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
+storeSchema.methods.passwordChangedAfter = function (jwtTimestamp) {
+  if (this.passwordChangedAt) {
+    const formattedTime = this.passwordChangedAt.getTime() / 1000;
+    return parseInt(formattedTime, 10) > jwtTimestamp;
+  }
+  return false;
+};
+
 module.exports = model('Store', storeSchema);
