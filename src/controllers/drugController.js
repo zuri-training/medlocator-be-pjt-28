@@ -25,12 +25,7 @@ const add_drug = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(409).send({
-      status: "failure",
-      code: 409,
-      message: e.message,
-      body: {},
-    });
+    next(e)
   }
 };
 
@@ -53,12 +48,7 @@ const toogle_availability = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(409).send({
-      status: "failure",
-      code: 409,
-      message: e.message,
-      body: {},
-    });
+    next(e);
   }
 };
 
@@ -79,12 +69,7 @@ const delete_drug = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(409).send({
-      status: "failure",
-      code: 409,
-      message: e.message,
-      body: {},
-    });
+    next(e);
   }
 };
 
@@ -107,12 +92,7 @@ const get_drug = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(404).send({
-      status: "failure",
-      code: 404,
-      message: e.message,
-      body: {},
-    });
+    next(e);
   }
 };
 
@@ -132,12 +112,7 @@ const get_drugs = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(404).send({
-      status: "failure",
-      code: 404,
-      message: e.message,
-      body: {},
-    });
+    next(e);
   }
 };
 
@@ -158,12 +133,7 @@ const update_drugs = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(400).send({
-      status: "failure",
-      code: 400,
-      message: e.message,
-      body: {},
-    });
+    next(e);
   }
 };
 
