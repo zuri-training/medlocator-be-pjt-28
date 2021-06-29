@@ -2,7 +2,7 @@ const Store = require('../models/Store');
 
 exports.getStores = async (req, res, next) => {
   try {
-    const store = await storeSchema.find().sort('name');
+    const store = await Store.find().sort('name');
     res.send(store);
   } catch (err) {
     next(err);
@@ -13,7 +13,7 @@ exports.createStores = async (req, res, next) => {
   try {
 
     
-    const store = new storeSchema({
+    const store = new Store({
       name: req.body.name,
       email: req.body.email,
       address: req.body.address,
