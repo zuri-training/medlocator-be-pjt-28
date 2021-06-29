@@ -9,27 +9,6 @@ exports.getStores = async (req, res, next) => {
   }
 };
 
-exports.createStores = async (req, res, next) => {
-  try {
-
-    
-    const store = new Store({
-      name: req.body.name,
-      email: req.body.email,
-      address: req.body.address,
-      drugs: req.body.drugs,
-      contact: {
-        owner: req.body.owmer,
-        phone: req.body.phone,
-        email: req.body.email,
-      },
-    });
-    await Store.save();
-    res.send(store);
-  } catch (err) {
-    next(err);
-  }
-};
 
 exports.updateStore = async (req, res, next) => {
   try {
