@@ -73,13 +73,13 @@ const delete_drug = async (req, res, next) => {
   }
 };
 
+/* this is for the user to get
+  drugs using the drugs id
+*/
 const get_drug = async (req, res, next) => {
   try {
-    const { drug_name } = req.params;
-    const drug = await Drug.findOne({
-      name: drug_name,
-      store: req.store.id,
-    });
+    const { drug_id } = req.params;
+    const drug = await Drug.findById(drug_id)
     if (!drug) throw new Error(`The drug ${drug_name} does not exist.`);
 
     req.api_res = {
