@@ -96,7 +96,10 @@ const get_drug = async (req, res, next) => {
   }
 };
 
-const get_drugs = async (req, res, next) => {
+/* for store owner to get all drugs whether 
+available or not
+*/
+const get_drugs_owner = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
     const start_from = (page - 1) * limit;
@@ -142,6 +145,6 @@ module.exports = {
   toogle_availability,
   delete_drug,
   get_drug,
-  get_drugs,
+  get_drugs_owner,
   update_drugs,
 };

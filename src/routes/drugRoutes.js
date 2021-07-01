@@ -6,7 +6,7 @@ const {
   toogle_availability,
   delete_drug,
   get_drug,
-  get_drugs,
+  get_drugs_owner,
   update_drugs,
 } = require("../controllers/drugController");
 const router = Router();
@@ -15,7 +15,7 @@ router.post("/create", protect, add_drug, respondJSON);
 router.put("/available", protect, toogle_availability, respondJSON);
 router.delete("/delete/:drug_name", protect, delete_drug, respondJSON);
 router.get("/:drug_name", protect, get_drug, respondJSON);
-router.get("/", protect, get_drugs, respondJSON);
+router.get("/", protect, get_drugs_owner, respondJSON);
 router.put("/update/:drug_id", protect, update_drugs, respondJSON);
 
 module.exports = router;
