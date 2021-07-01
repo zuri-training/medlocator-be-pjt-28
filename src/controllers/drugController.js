@@ -25,7 +25,7 @@ const add_drug = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    next(e)
+    next(e);
   }
 };
 
@@ -79,7 +79,7 @@ const delete_drug = async (req, res, next) => {
 const get_drug = async (req, res, next) => {
   try {
     const { drug_id } = req.params;
-    const drug = await Drug.findById(drug_id)
+    const drug = await Drug.findById(drug_id);
     if (!drug) throw new Error(`The drug ${drug_name} does not exist.`);
 
     req.api_res = {
@@ -102,8 +102,35 @@ available or not
 const get_drugs_owner = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
+    if (!page || !limit) throw new Error("Set values for both limit and page");
     const start_from = (page - 1) * limit;
     const results = await Drug.find().limit(parseInt(limit)).skip(start_from);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drugs have been sucessfully found and returned.`,
+      body: {
+        results,
+      },
+    };
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+/* this will be used by the user to get
+all drugs with availability set to true
+*/
+const get_drugs_users = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    if (!page || !limit) throw new Error("Set values for both limit and page")
+    const start_from = (page - 1) * limit;
+    const results = await Drug.find({ available: true })
+      .limit(parseInt(limit))
+      .skip(start_from);
 
     req.api_res = {
       status: "success",
@@ -146,5 +173,6 @@ module.exports = {
   delete_drug,
   get_drug,
   get_drugs_owner,
+  get_drugs_users,
   update_drugs,
 };
