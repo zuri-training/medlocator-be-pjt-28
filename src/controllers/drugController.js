@@ -5,7 +5,8 @@ const add_drug = async (req, res, next) => {
     const { drug_info } = req.body;
     const drug_saved = await Drug.findOne({
       name: drug_info.name,
-      store: req.store.id,
+      store: "60dd2185fbbc922c9c8db805"
+      // store: req.store.id,
     });
     if (drug_saved)
       throw new Error(
@@ -14,7 +15,8 @@ const add_drug = async (req, res, next) => {
     const new_drug = new Drug({
       ...drug_info,
       available: true,
-      store: req.store.id,
+      store: "60dd2185fbbc922c9c8db805",
+      // store: req.store.id,
     });
     const drug = await new_drug.save();
     req.api_res = {

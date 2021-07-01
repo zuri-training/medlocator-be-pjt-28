@@ -11,7 +11,7 @@ const {
 } = require("../controllers/drugController");
 const router = Router();
 
-router.post("/create", protect, add_drug, respondJSON);
+router.post("/create", add_drug, respondJSON);
 router.put("/available", protect, toogle_availability, respondJSON);
 router.delete("/delete/:drug_name", protect, delete_drug, respondJSON);
 router.get("/:drug_name", protect, get_drug, respondJSON);
