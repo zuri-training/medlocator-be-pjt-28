@@ -126,7 +126,7 @@ all drugs with availability set to true
 const get_drugs_users = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
-    if (!page || !limit) throw new Error("Set values for both limit and page")
+    if (!page || !limit) throw new Error("Set values for both limit and page");
     const start_from = (page - 1) * limit;
     const results = await Drug.find({ available: true })
       .limit(parseInt(limit))
@@ -138,6 +138,36 @@ const get_drugs_users = async (req, res, next) => {
       message: `The drugs have been sucessfully found and returned.`,
       body: {
         results,
+      },
+    };
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+/*
+this will be used to search for a drug
+either by name or chemical
+*/
+const search_drug = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    if (!page || !limit) throw new Error("Set values for both limit and page");
+    const { identifier } = req.params;
+    const start_from = (page - 1) * limit;
+    const drugs = await Drug.find({
+      $or: [{ name: identifier }, { chemical_name: identifier }],
+    })
+      .limit(parseInt(limit))
+      .skip(start_from);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drugs have been sucessfully found and returned.`,
+      body: {
+        drugs,
       },
     };
     next();
@@ -174,5 +204,6 @@ module.exports = {
   get_drug,
   get_drugs_owner,
   get_drugs_users,
+  search_drug,
   update_drugs,
 };
