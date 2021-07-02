@@ -17,7 +17,7 @@ This is used by Everyone to search for Drugs using it's name or chemical name.
 **Data example**
 
 ```
-/api/v1/drug//search/panadol?page=1&limit=10
+/api/v1/drug/search/panadol?page=1&limit=10
 ```
 
 ## Success Response
