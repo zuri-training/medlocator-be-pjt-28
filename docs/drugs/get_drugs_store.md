@@ -1,12 +1,12 @@
 # Create Drug
 
-This is used by Everyone to get an array of existing Drugs.
+This is used by the Store Owner to get an array of existing Drugs.
 
 **URL** : `/api/v1/drug/`
 
 **Method** : `GET`
 
-**Auth required** : NO
+**Auth required** : YES
 
 **Data constraints**
 
