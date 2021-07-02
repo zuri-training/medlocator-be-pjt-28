@@ -4,9 +4,9 @@ This is used by Store Owners to update existing Drugs.
 
 **URL** : `/api/v1/drug/update/:drug_id`
 
-**Method** : `GET`
+**Method** : `PUT`
 
-**Auth required** : NO
+**Auth required** : YES
 
 **Data constraints**
 
