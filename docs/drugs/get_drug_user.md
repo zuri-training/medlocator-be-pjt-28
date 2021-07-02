@@ -2,7 +2,7 @@
 
 This is used by Everyone to get the one existing Drug.
 
-**URL** : `/api/v1/drug/:drug_name`
+**URL** : `/api/v1/drug/:drug_id`
 
 **Method** : `GET`
 
@@ -11,13 +11,13 @@ This is used by Everyone to get the one existing Drug.
 **Data constraints**
 
 ```
-/api/v1/drug/:drug_name
+/api/v1/drug/:drug_id
 ```
 
 **Data example**
 
 ```
-/api/v1/drug/panadol
+/api/v1/drug/60dd21e2cb4f7f34984d4dfb
 ```
 
 ## Success Response
@@ -46,7 +46,7 @@ This is used by Everyone to get the one existing Drug.
 
 ## Error Response
 
-**Condition** : If "drug_name" does not exist.
+**Condition** : If "drug_id" does not exist.
 
 **Code** : `500 Internal Server Error`
 
