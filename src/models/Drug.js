@@ -5,6 +5,7 @@ const drugSchema = new Schema({
     type: String,
     trim: true,
     required: true,
+    uniqiue: true,
     maxlength: 20,
     minlength: 1,
   },
@@ -37,7 +38,6 @@ const drugSchema = new Schema({
 
 drugSchema.methods.toJSON = function () {
   const drug_json = this.toObject();
-  delete drug_json._id;
   delete drug_json.__v;
   return drug_json;
 };

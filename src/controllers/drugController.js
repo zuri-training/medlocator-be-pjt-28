@@ -1,16 +1,5 @@
 const Drug = require("../models/Drug");
 
-const respondJSON = (req, res) => {
-  const { status, code, message, body } = req.api_res;
-  const res_data = {
-    status,
-    code,
-    message,
-    body,
-  };
-  res.status(code).json(res_data);
-};
-
 const add_drug = async (req, res, next) => {
   try {
     const { drug_info } = req.body;
@@ -28,7 +17,6 @@ const add_drug = async (req, res, next) => {
       store: req.store.id,
     });
     const drug = await new_drug.save();
-
     req.api_res = {
       status: "success",
       code: 201,
@@ -37,12 +25,7 @@ const add_drug = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(409).send({
-      status: "failure",
-      code: 409,
-      message: e.message,
-      body: {},
-    });
+    next(e)
   }
 };
 
@@ -65,12 +48,7 @@ const toogle_availability = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(409).send({
-      status: "failure",
-      code: 409,
-      message: e.message,
-      body: {},
-    });
+    next(e);
   }
 };
 
@@ -91,18 +69,79 @@ const delete_drug = async (req, res, next) => {
     };
     next();
   } catch (e) {
-    res.status(409).send({
-      status: "failure",
-      code: 409,
-      message: e.message,
-      body: {},
+    next(e);
+  }
+};
+
+const get_drug = async (req, res, next) => {
+  try {
+    const { drug_name } = req.params;
+    const drug = await Drug.findOne({
+      name: drug_name,
+      store: req.store.id,
     });
+    if (!drug) throw new Error(`The drug ${drug_name} does not exist.`);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drug ${drug_name} has been sucessfully found and returned.`,
+      body: {
+        drug,
+      },
+    };
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+const get_drugs = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    const start_from = (page - 1) * limit;
+    const results = await Drug.find().limit(parseInt(limit)).skip(start_from);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drugs have been sucessfully found and returned.`,
+      body: {
+        results,
+      },
+    };
+    next();
+  } catch (e) {
+    next(e);
+  }
+};
+
+const update_drugs = async (req, res, next) => {
+  try {
+    const { updated_data } = req.body;
+    const { drug_id } = req.params;
+    await Drug.findByIdAndUpdate(drug_id, updated_data);
+    const drug = await Drug.findById(drug_id);
+
+    req.api_res = {
+      status: "success",
+      code: 200,
+      message: `The drug has been sucessfully updated.`,
+      body: {
+        drug,
+      },
+    };
+    next();
+  } catch (e) {
+    next(e);
   }
 };
 
 module.exports = {
-  respondJSON,
   add_drug,
   toogle_availability,
   delete_drug,
+  get_drug,
+  get_drugs,
+  update_drugs,
 };
