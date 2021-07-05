@@ -46,15 +46,33 @@ const storeSchema = new Schema({
     owner: {
       type: String,
       trim: true,
+      minlength: [2, 'Owner must be more than 3 characters'],
     },
     phone: {
       type: String,
       trim: true,
+      validate: {
+        validator: function (value) {
+          return /^[0]\d{10}$/.test(value);
+        },
+        message: 'Enter a valid phone number',
+      },
     },
     email: {
       type: String,
       trim: true,
+      validate: {
+        validator: function (value) {
+          return /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value.toLowerCase());
+        },
+        message: 'Enter a valid email',
+      },
     },
+  },
+  activationKey: String,
+  active: {
+    type: Boolean,
+    default: false,
   },
 });
 
