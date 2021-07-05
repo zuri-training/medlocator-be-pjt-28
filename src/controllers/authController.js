@@ -45,12 +45,21 @@ const sendToken = (store, statusCode, res) => {
   });
 
   store.password = undefined;
+  store.activationKey = undefined;
 
   res.status(statusCode).json({
     status: 'success',
     token,
     store,
   });
+};
+
+const generateRandomId = () => {
+  const chars = [
+    ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcddefghijklmopqrstuvwxyz',
+  ];
+  return [...Array(50)].map(i => chars[(Math.random() * chars.length) | 0])
+    .join``;
 };
 
 // @desc  Register a store
@@ -62,14 +71,33 @@ exports.register = async (req, res, next) => {
     const { name, email, password, passwordConfirm, address, contact } =
       req.body;
 
-    const store = await Store.create({
+    const store = await Store({
       name,
       email,
       password,
       passwordConfirm,
       address,
       contact,
+      activationKey: generateRandomId(),
     });
+
+    await store.save();
+
+    const ACTIVATION_URL = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/auth/activate/${store.activationKey}`;
+
+    let message = `
+      Send a get request to: <ACTIVATION_URL>. to activate your account
+    `;
+
+    const emailOptions = {
+      email: store.email,
+      subject: 'Confirm Your Account',
+      message: message.replace('<ACTIVATION_URL>', ACTIVATION_URL).trim(),
+    };
+
+    // await emailService(emailOptions);
 
     sendToken(store, 200, res);
   } catch (err) {
@@ -242,4 +270,28 @@ exports.logout = (req, res, next) => {
     status: 'success',
     data: {},
   });
+};
+
+// @desc Activate store
+// @route GET api/v1/auth/activate/activationKey
+// @access Private
+
+exports.activateStore = async (req, res, next) => {
+  try {
+    const store = await Store.findOne({
+      activationKey: req.params.activationKey,
+    });
+
+    store.active = true;
+    await store.save({
+      validateBeforeSave: false,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Store activated',
+    });
+  } catch (err) {
+    next(err);
+  }
 };
