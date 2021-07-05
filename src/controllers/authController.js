@@ -122,6 +122,10 @@ exports.login = async (req, res, next) => {
 
     const store = await Store.findOne({ email }).select('+password');
 
+    if (!store.active) {
+      throw new Error('This store is not active');
+    }
+
     if (!(store && (await store.passwordsMatch(password, store.password)))) {
       throw new Error('Incorrect email or password');
     }
