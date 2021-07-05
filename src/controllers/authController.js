@@ -97,7 +97,7 @@ exports.register = async (req, res, next) => {
       message: message.replace('<ACTIVATION_URL>', ACTIVATION_URL).trim(),
     };
 
-    // await emailService(emailOptions);
+    await emailService(emailOptions);
 
     sendToken(store, 200, res);
   } catch (err) {
