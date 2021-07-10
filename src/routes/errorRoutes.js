@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const errController = require('../controllers/errorController.js')
 
-app.use(errController.noResourceFound);
-app.use(errController.internalSerevrError);
+router.use(errController.noResourceFound);
+router.use(errController.internalSerevrError);
 
 module.exports = router;
