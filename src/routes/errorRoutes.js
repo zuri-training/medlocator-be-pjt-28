@@ -1,8 +1,7 @@
-const app = require('express');
-const app = require('Router');
+const router = require('express').Router();
 const errController = require('../controllers/errorController.js')
 
 app.use(errController.noResourceFound);
 app.use(errController.internalSerevrError);
 
-module.exports = app;
+module.exports = router;

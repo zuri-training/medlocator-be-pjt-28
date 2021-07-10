@@ -25,7 +25,7 @@ const forErrorControl = {
             };
         }
         res.status(500)
-        .json( { message: objectError });
+        .json(objectError);
     }
 };
 
