@@ -8,7 +8,7 @@ const {JWT_SECRET, JWT_EXPIRES_IN, JWT_COOKIE_EXPIRES, NODE_ENV,
   EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_SENDER} = require('../config/constants');
 
 // Email Service
-const emailService = async ({ email, subject, message }) => {
+const emailService = async ({ email, subject, message, from_email }) => {
   const transporter = nodemailer.createTransport({
     host: EMAIL_HOST,
     port: EMAIL_PORT,
@@ -17,9 +17,11 @@ const emailService = async ({ email, subject, message }) => {
       pass: EMAIL_PASSWORD,
     },
   });
-
+  if(!from_email){
+    from_email = EMAIL_SENDER;
+  }
   await transporter.sendMail({
-    from: EMAIL_SENDER,
+    from: from_email,
     to: email,
     subject,
     text: message,
@@ -306,13 +308,14 @@ exports.activateStore = async (req, res, next) => {
 
 exports.contactMail = async (req,res,next) => {
   try{
-    const{fullname, designation, contact_type, comment} = req.body;
+    const{fullname, designation, contact_type, comment, email} = req.body;
     let message = `
     Full name: ${fullname}
     Designation: ${designation}
     Contact Type: ${contact_type}
     Comment: ${comment}`;
     const emailOptions = {
+      from_email: email,
       email: EMAIL_SENDER,
       subject: "Feedback Mail",
       message

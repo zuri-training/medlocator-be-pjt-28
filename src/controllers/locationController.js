@@ -18,7 +18,6 @@ forwardHandler: (req,res,next) => {
         .send()
         .then(response => {
             const match = response.body;
-            console.log(match);
             if(address) req.body.geometry = match.features[0].geometry;
             else if(location) req.body.location = match.features[0].geometry;
             next();
