@@ -18,8 +18,14 @@ forwardHandler: (req,res,next) => {
         .send()
         .then(response => {
             const match = response.body;
-            if(address) req.body.geometry = match.features[0].geometry;
-            else if(location) req.body.location = match.features[0].geometry;
+            if(match.features.length > 0){
+                if(address) req.body.geometry = match.features[0].geometry;
+                else if(location) req.body.location = match.features[0].geometry;
+            }
+            else{
+                if(address) req.body.geometry = [];
+                else if(location) req.body.location = [];
+            }
             next();
         })
         .catch(error => {
