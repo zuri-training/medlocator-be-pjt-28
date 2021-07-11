@@ -19,11 +19,7 @@ exports.updateStore = async (req, res, next) => {
       {$set: {
         name: req.body.name,
         email: req.body.email,
-        contact: {
-          owner: req.body.owner,
-          phone: req.body.phone,
-          email: req.body.email,
-        },
+        contact: req.body.contact,
         address: req.body.address,
         geometry: req.body.geometry
       }},
