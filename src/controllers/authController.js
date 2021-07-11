@@ -126,6 +126,10 @@ exports.login = async (req, res, next) => {
 
     const store = await Store.findOne({ email }).select('+password');
 
+    if(store.length <= 0){
+      throw new Error('This email is not registered');
+    }
+    
     if (!store.active) {
       throw new Error('This store is not active');
     }
