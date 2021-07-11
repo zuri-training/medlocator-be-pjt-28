@@ -16,7 +16,7 @@ exports.updateStore = async (req, res, next) => {
   try {
     const store = await Store.findByIdAndUpdate(
       req.store.id,
-      {
+      {$set: {
         name: req.body.name,
         email: req.body.email,
         contact: {
@@ -24,7 +24,9 @@ exports.updateStore = async (req, res, next) => {
           phone: req.body.phone,
           email: req.body.email,
         },
-      },
+        address: req.body.address,
+        geometry: req.body.geometry
+      }},
       { new: true }
     );
     res.status(200).json({

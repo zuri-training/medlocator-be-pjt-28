@@ -5,6 +5,7 @@ const storeRoutes = require("./storeRoutes");
 const homeRoutes = require("./homeRoutes");
 const drugRoute = require("./drugRoutes");
 const errorRoutes = require('./errorRoutes');
+const searchRoutes = require("./searchRoutes");
 const corsOptions = {
     origin:true,
     credentials:true,
@@ -15,6 +16,7 @@ router.options("*",cors(corsOptions));
 router.use("/api/v1/user", userRoutes);
 router.use("/api/v1/store", storeRoutes);
 router.use("/api/v1/drug", drugRoute);
+router.use("/api/v1/search", searchRoutes);
 router.use("/", homeRoutes);
 router.use('/', errorRoutes);
 

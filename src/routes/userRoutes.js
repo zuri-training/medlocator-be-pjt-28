@@ -6,9 +6,10 @@ const {
   resetPassword,
   activateStore,
 } = require('../controllers/authController');
+const { forwardHandler, checkCoords } = require("../controllers/locationController");
 const router = require('express').Router();
 
-router.post('/register', register);
+router.post('/register', checkCoords, forwardHandler, register);
 router.post('/login', login);
 
 router.post('/forgot-password', forgotPassword);
