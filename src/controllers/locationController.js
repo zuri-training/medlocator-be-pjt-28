@@ -1,44 +1,44 @@
-const {MY_ACCESS_TOKEN:AT} = require("../config/constants");
+const {GOOGLE_MAPS_API_KEY:GAT} = require("../config/constants");
 const turfDistance = require("@turf/distance").default; 
 const Drug = require("../models/Drug");
-const mbxGeocoder = require("@mapbox/mapbox-sdk/services/geocoding");
-const geocodingService = mbxGeocoder({ accessToken: AT });
+const {Client} = require("@googlemaps/google-maps-services-js");
+const client = new Client({});
 
 
 // forwardHandler to forward geocode incoming addresses
 
 module.exports = {
 forwardHandler: (req,res,next) => {
-    function forwardGeocode(value){
-        geocodingService.forwardGeocode({
-            query:value,
-            countries: ['ng'],
-            limit: 1
-        })
-        .send()
-        .then(response => {
-            const match = response.body;
-            if(match.features.length > 0){
-                if(address) req.body.geometry = match.features[0].geometry;
-                else if(location) req.body.location = match.features[0].geometry;
+    function geocode(value){
+        client.geocode({
+            params:{
+                address: value,
+                region: "NG",
+                key: GAT
             }
-            else{
+        })
+        .then(({data})=>{
+            if(data.status == "OK"){
+                if(address){
+                     req.body.geometry = data.results[0].geometry.location;
+                     req.body.place_id = data.results[0].place_id;}
+                else if(location) req.body.location = data.results[0].geometry.location;
+            } else {
                 if(address) req.body.geometry = [];
                 else if(location) req.body.location = [];
             }
             next();
         })
-        .catch(error => {
-            next(error);
-        });
+        .catch(err => {
+            next(err.data);
+        })
     }
-
     const {location, address} = req.body;
     if(location && typeof(location) == "string" ){
-        forwardGeocode(location);
+        geocode(location);
     }
     else if(address && typeof(address) == "string"){
-        forwardGeocode(address);
+        geocode(address);
     }
     else{
         next();
@@ -52,8 +52,8 @@ checkCoords: (req,res,next) => {
         if(valArray.length == 2){
             valArray[0] = parseFloat(valArray[0]);
             valArray[1] = parseFloat(valArray[1]);
-            if(isLocation && valArray[0] && valArray[1]) req.body.location = valArray;
-            else if(isAddress && valArray[0] && valArray[1]) req.body.address = valArray;
+            if(isLocation && valArray[0] && valArray[1]) req.body.location = {lat:valArray[0], lng:valArray[1]};
+            else if(isAddress && valArray[0] && valArray[1]) req.body.address = {lat:valArray[0], lng:valArray[1]};
             next();
         }
         else{
@@ -76,8 +76,11 @@ checkCoords: (req,res,next) => {
 sortStores: (req,res,next) => {
     try{
         const {location, stores} = req.body;
+        
         stores.forEach(drugStore => {
-            drugStore.store.distance = turfDistance(location, drugStore.store.geometry);
+            const from = [location.lng,location.lat];
+            const to = [drugStore.store.geometry.lng, drugStore.store.geometry.lat];
+            drugStore.store.distance = turfDistance(from, to);
         });
         stores.sort((a, b) => {
             if (a.store.distance > b.store.distance) {
