@@ -297,10 +297,7 @@ exports.activateStore = async (req, res, next) => {
       validateBeforeSave: false,
     });
 
-    res.status(200).json({
-      status: 'success',
-      message: 'Store activated',
-    });
+    res.status(302).redirect("https://zurimed.netlify.app/login.html");
   } catch (err) {
     next(err);
   }
