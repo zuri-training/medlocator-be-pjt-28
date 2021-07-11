@@ -303,3 +303,28 @@ exports.activateStore = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.contactMail = async (req,res,next) => {
+  try{
+    const{fullname, designation, contact_type, comment} = req.body;
+    let message = `
+    Full name: ${fullname}
+    Designation: ${designation}
+    Contact Type: ${contact_type}
+    Comment: ${comment}`;
+    const emailOptions = {
+      email: EMAIL_SENDER,
+      subject: "Feedback Mail",
+      message
+    }
+    await emailService(emailOptions);
+    res.status(200).json({
+      status: "success",
+      message: "Email sent successfully",
+      data: null
+    });
+  }
+  catch(err){
+    next(err);
+  }
+}
