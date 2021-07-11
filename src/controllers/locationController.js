@@ -76,26 +76,34 @@ checkCoords: (req,res,next) => {
 sortStores: (req,res,next) => {
     try{
         const {location, stores} = req.body;
-        
-        stores.forEach(drugStore => {
-            const from = [location.lng,location.lat];
-            const to = [drugStore.store.geometry.lng, drugStore.store.geometry.lat];
-            drugStore.store.distance = turfDistance(from, to);
-        });
-        stores.sort((a, b) => {
-            if (a.store.distance > b.store.distance) {
-                return 1;
+        if(stores.length > 0){
+            stores.forEach(drugStore => {
+                const from = [location.lng,location.lat];
+                const to = [drugStore.store.geometry.lng, drugStore.store.geometry.lat];
+                drugStore.store.distance = turfDistance(from, to);
+            });
+            stores.sort((a, b) => {
+                if (a.store.distance > b.store.distance) {
+                    return 1;
+                }
+                if (a.store.distance < b.store.distance) {
+                    return -1;
+                }
+                return 0; // a must be equal to b
+            });
+            req.api_res = {
+                status: "success",
+                code: 200,
+                body: stores,
+                message: "Drug stores sorted"
             }
-            if (a.store.distance < b.store.distance) {
-                return -1;
+        } else {
+            req.api_res = {
+                status: "success",
+                code: 200,
+                body: stores,
+                message: "Drug not found"
             }
-            return 0; // a must be equal to b
-        });
-        req.api_res = {
-            status: "success",
-            code: 200,
-            body: stores,
-            message: "Drug stores sorted"
         }
         next();
     } catch(err){
