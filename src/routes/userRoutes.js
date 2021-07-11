@@ -8,9 +8,10 @@ const {
   contactMail
 } = require('../controllers/authController');
 const { forwardHandler, checkCoords } = require("../controllers/locationController");
+const contactBuilder = require("../middlewares/contactBuilder");
 const router = require('express').Router();
 
-router.post('/register', checkCoords, forwardHandler, register);
+router.post('/register', checkCoords, forwardHandler, contactBuilder, register);
 router.post('/login', login);
 
 router.post("/contact",contactMail);
