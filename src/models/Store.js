@@ -42,6 +42,7 @@ const storeSchema = new Schema({
     type: String,
     required: true,
   },
+  geometry: [Number],
   contact: {
     owner: {
       type: String,

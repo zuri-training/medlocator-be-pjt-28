@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const respondJSON = require("../controllers/responseHandler");
+const {respondJSON} = require("../controllers/responseHandler");
 const { protect } = require("../controllers/authController");
 const {
   add_drug,

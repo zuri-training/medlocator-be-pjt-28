@@ -180,7 +180,7 @@ const update_drugs = async (req, res, next) => {
   try {
     const { updated_data } = req.body;
     const { drug_id } = req.params;
-    await Drug.findByIdAndUpdate(drug_id, updated_data);
+    await Drug.findByIdAndUpdate(drug_id, {$set: {updated_data}});
     const drug = await Drug.findById(drug_id);
 
     req.api_res = {
