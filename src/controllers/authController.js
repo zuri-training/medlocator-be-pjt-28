@@ -73,7 +73,7 @@ const generateRandomId = () => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, passwordConfirm, address, contact, geometry } =
+    const { name, email, password, passwordConfirm, address, contact, geometry, place_id } =
       req.body;
 
     const store = await Store({
@@ -84,6 +84,7 @@ exports.register = async (req, res, next) => {
       address,
       geometry,
       contact,
+      place_id,
       activationKey: generateRandomId(),
     });
 

@@ -42,7 +42,14 @@ const storeSchema = new Schema({
     type: String,
     required: true,
   },
-  geometry: [Number],
+  geometry: {
+    lat: {
+      type: Number
+    },
+    lng: {
+      type: Number
+    }
+  },
   contact: {
     owner: {
       type: String,
@@ -75,6 +82,7 @@ const storeSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  place_id: String
 });
 
 storeSchema.pre('save', async function (next) {
