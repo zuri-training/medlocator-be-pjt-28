@@ -7,8 +7,6 @@ const dbSetup = require('./db');
 const { PORT } = require('./config/constants');
 const port = process.env.port || PORT;
 
-const { showTemplate } = require('./controllers/authController');
-
 // Connect to the database
 dbSetup();
 
