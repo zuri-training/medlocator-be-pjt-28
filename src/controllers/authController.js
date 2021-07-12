@@ -1,32 +1,64 @@
 const crypto = require('crypto');
+const ejs = require('ejs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const Store = require('../models/Store');
 
-const {JWT_SECRET, JWT_EXPIRES_IN, JWT_COOKIE_EXPIRES, NODE_ENV,
-  EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_SENDER} = require('../config/constants');
+const {
+  JWT_SECRET,
+  JWT_EXPIRES_IN,
+  JWT_COOKIE_EXPIRES,
+  NODE_ENV,
+  EMAIL_HOST,
+  EMAIL_PORT,
+  EMAIL_USERNAME,
+  EMAIL_PASSWORD,
+  EMAIL_SENDER,
+} = require('../config/constants');
 
-// Email Service
-const emailService = async ({ email, subject, message, from_email }) => {
-  const transporter = nodemailer.createTransport({
-    host: EMAIL_HOST,
-    port: EMAIL_PORT,
-    auth: {
-      user: EMAIL_USERNAME,
-      pass: EMAIL_PASSWORD,
-    },
-  });
-  if(!from_email){
-    from_email = EMAIL_SENDER;
+class Email {
+  constructor(store, url) {
+    this.to = store.email;
+    this.storeName = store.name;
+    this.url = url;
+    this.from = `${EMAIL_SENDER}`;
   }
-  await transporter.sendMail({
-    from: from_email,
-    to: email,
-    subject,
-    text: message,
-  });
-};
+
+  newTransport() {
+    return nodemailer.createTransport({
+      host: EMAIL_HOST,
+      port: EMAIL_PORT,
+      auth: {
+        user: EMAIL_USERNAME,
+        pass: EMAIL_PASSWORD,
+      },
+    });
+  }
+
+  async send(template, subject) {
+    const html = await ejs.renderFile(
+      `${__dirname}/../views/emails/${template}.ejs`,
+      {
+        url: this.url,
+        subject,
+      }
+    );
+
+    const emailOptions = {
+      from: this.from,
+      to: this.to,
+      subject,
+      html,
+    };
+
+    await this.newTransport().sendMail(emailOptions);
+  }
+
+  async sendWelcome() {
+    await this.send('welcome', 'Welcome');
+  }
+}
 
 // Generate JWT token
 const genToken = ({ _id: id }) =>
@@ -40,8 +72,7 @@ const sendToken = (store, statusCode, res) => {
 
   res.cookie('jwt', token, {
     expires: new Date(
-      Date.now() +
-        parseInt(JWT_COOKIE_EXPIRES, 10) * 24 * 60 * 60 * 1000
+      Date.now() + parseInt(JWT_COOKIE_EXPIRES, 10) * 24 * 60 * 60 * 1000
     ),
     ...(NODE_ENV === 'production' && {
       secure: true,
@@ -51,20 +82,13 @@ const sendToken = (store, statusCode, res) => {
 
   store.password = undefined;
   store.activationKey = undefined;
+  store.activationKeyExpires = undefined;
 
   res.status(statusCode).json({
     status: 'success',
     token,
     store,
   });
-};
-
-const generateRandomId = () => {
-  const chars = [
-    ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcddefghijklmopqrstuvwxyz',
-  ];
-  return [...Array(50)].map(i => chars[(Math.random() * chars.length) | 0])
-    .join``;
 };
 
 // @desc  Register a store
@@ -105,17 +129,16 @@ exports.register = async (req, res, next) => {
       'host'
     )}/api/v1/auth/activate/${store.activationKey}`;
 
-    let message = `
-      Send a get request to: <ACTIVATION_URL>. to activate your account
-    `;
-
-    const emailOptions = {
-      email: store.email,
-      subject: 'Confirm Your Account',
-      message: message.replace('<ACTIVATION_URL>', ACTIVATION_URL).trim(),
-    };
-
-    await emailService(emailOptions);
+    try {
+      await new Email(store, ACTIVATION_URL).sendWelcome();
+    } catch (error) {
+      store.activationKey = undefined;
+      store.activationKeyExpires = undefined;
+      await store.save({
+        validateBeforeSave: false,
+      });
+      return next(new Error('An error occured sending the email'));
+    }
 
     sendToken(store, 200, res);
   } catch (err) {
@@ -158,8 +181,9 @@ exports.login = async (req, res, next) => {
 };
 
 exports.protect = async (req, res, next) => {
-  let token;
   try {
+    let token;
+
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith('Bearer')
@@ -222,31 +246,10 @@ exports.forgotPassword = async (req, res, next) => {
       'host'
     )}/api/v1/auth/reset-password/${resetToken}`;
 
-    let message = `
-      Forgot your password? Send a patch request with your new password to: <RESET_TOKEN_URL>. If you did not make this request, please ignore this email
-    `;
-
-    const emailOptions = {
-      email: store.email,
-      subject: 'Your password Reset Token (Expires in 10mins)',
-      message: message.replace('<RESET_TOKEN_URL>', RESET_URL).trim(),
-    };
-
-    try {
-      await emailService(emailOptions);
-      res.status(200).json({
-        status: 'success',
-        message: 'Token Sent',
-      });
-    } catch (err) {
-      store.passwordResetToken = undefined;
-      store.passwordResetTokenExpires = undefined;
-      await store.save({ validateBeforeSave: false });
-
-      return next(
-        new Error('There was an error sending the email, try again later')
-      );
-    }
+    res.status(200).json({
+      status: 'success',
+      resetUrl: RESET_URL,
+    });
   } catch (err) {
     next(err);
   }
@@ -308,14 +311,41 @@ exports.activateStore = async (req, res, next) => {
   try {
     const store = await Store.findOne({
       activationKey: req.params.activationKey,
+      activationKeyExpires: { $gt: Date.now() },
     });
 
     store.active = true;
+    store.activationKey = undefined;
+    store.activationKeyExpires = undefined;
     await store.save({
       validateBeforeSave: false,
     });
+    res.status(302).redirect('https://zurimed.netlify.app/login.html');
+  } catch (err) {
+    next(err);
+  }
+};
 
-    res.status(302).redirect("https://zurimed.netlify.app/login.html");
+exports.contactMail = async (req, res, next) => {
+  try {
+    const { fullname, designation, contact_type, comment, email } = req.body;
+    let message = `
+    Full name: ${fullname}
+    Designation: ${designation}
+    Contact Type: ${contact_type}
+    Comment: ${comment}`;
+    const emailOptions = {
+      from_email: email,
+      email: EMAIL_SENDER,
+      subject: 'Feedback Mail',
+      message,
+    };
+    await emailService(emailOptions);
+    res.status(200).json({
+      status: 'success',
+      message: 'Email sent successfully',
+      data: null,
+    });
   } catch (err) {
     next(err);
   }

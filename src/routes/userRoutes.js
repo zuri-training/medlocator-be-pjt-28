@@ -5,6 +5,7 @@ const {
   register,
   forgotPassword,
   resetPassword,
+  showTemplate,
   activateStore,
   contactMail
 } = require('../controllers/authController');

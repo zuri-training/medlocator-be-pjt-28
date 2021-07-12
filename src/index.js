@@ -15,6 +15,9 @@ const app = express();
 // Use the cors package
 app.use(cors());
 
+app.set('views', './src/views');
+app.set('view engine', 'ejs');
+
 // Parse Cookie
 app.use(cookieParser());
 

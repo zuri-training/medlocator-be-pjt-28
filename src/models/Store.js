@@ -78,12 +78,21 @@ const storeSchema = new Schema({
     },
   },
   activationKey: String,
+  activationKeyExpires: Date,
   active: {
     type: Boolean,
     default: false,
   },
   place_id: String
 });
+
+const generateRandomId = () => {
+  const chars = [
+    ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcddefghijklmopqrstuvwxyz',
+  ];
+  return [...Array(50)].map(i => chars[(Math.random() * chars.length) | 0])
+    .join``;
+};
 
 storeSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -95,11 +104,20 @@ storeSchema.pre('save', async function (next) {
 });
 
 storeSchema.pre('save', function (next) {
-  if (!this.isModified('passwords') || this.isNew) {
+  if (!this.isModified('password') || this.isNew) {
     return next();
   }
 
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+storeSchema.pre('save', function (next) {
+  if (this.isNew) {
+    this.activationKey = generateRandomId();
+    this.activationKeyExpires = Date.now() + 15 * 24 * 60 * 60 * 1000;
+    next();
+  }
   next();
 });
 
