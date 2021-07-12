@@ -117,7 +117,7 @@ sortStores: (req,res,next) => {
 findDrugStores: async (req,res,next) => {
     try{
         const {drug} = req.body;
-        const drugStores = await Drug.find({ $or: [ {name: drug}, {chemical_name: drug} ] }, "price store", {populate:"store"} );
+        const drugStores = await Drug.find({ $or: [ {name: drug}, {chemical_name: drug} ] }, "name price store", {populate:"store"} );
         req.body.stores = drugStores;
         next();
     } catch(err){
