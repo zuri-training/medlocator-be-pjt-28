@@ -106,7 +106,7 @@ storeSchema.pre('save', function (next) {
 storeSchema.pre('save', function (next) {
   if (this.isNew) {
     this.activationKey = generateRandomId();
-    this.activationKeyExpires = Date.now() + 60 * 60 * 1000;
+    this.activationKeyExpires = Date.now() + 15 * 24 * 60 * 60 * 1000;
     next();
   }
   next();

@@ -1,26 +1,37 @@
 const crypto = require('crypto');
-const { htmlToText } = require('html-to-text');
 const ejs = require('ejs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const Store = require('../models/Store');
 
+const {
+  JWT_SECRET,
+  JWT_EXPIRES_IN,
+  JWT_COOKIE_EXPIRES,
+  NODE_ENV,
+  EMAIL_HOST,
+  EMAIL_PORT,
+  EMAIL_USERNAME,
+  EMAIL_PASSWORD,
+  EMAIL_SENDER,
+} = require('../config/constants');
+
 class Email {
   constructor(store, url) {
     this.to = store.email;
     this.storeName = store.name;
     this.url = url;
-    this.from = `${process.env.EMAIL_SENDER}`;
+    this.from = `${EMAIL_SENDER}`;
   }
 
   newTransport() {
     return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
+      host: EMAIL_HOST,
+      port: EMAIL_PORT,
       auth: {
-        user: process.env.EMAIL_USENAME,
-        pass: process.env.EMAIL_PASSWORD,
+        user: EMAIL_USERNAME,
+        pass: EMAIL_PASSWORD,
       },
     });
   }
@@ -29,7 +40,6 @@ class Email {
     const html = await ejs.renderFile(
       `${__dirname}/../views/emails/${template}.ejs`,
       {
-        store: this.storeName,
         url: this.url,
         subject,
       }
@@ -40,7 +50,6 @@ class Email {
       to: this.to,
       subject,
       html,
-      // text: htmlToText(html),
     };
 
     await this.newTransport().sendMail(emailOptions);
@@ -53,8 +62,8 @@ class Email {
 
 // Generate JWT token
 const genToken = ({ _id: id }) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  jwt.sign({ id }, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
   });
 
 // Send JWT token in response body
@@ -63,10 +72,9 @@ const sendToken = (store, statusCode, res) => {
 
   res.cookie('jwt', token, {
     expires: new Date(
-      Date.now() +
-        parseInt(process.env.JWT_COOKIE_EXPIRES, 10) * 24 * 60 * 60 * 1000
+      Date.now() + parseInt(JWT_COOKIE_EXPIRES, 10) * 24 * 60 * 60 * 1000
     ),
-    ...(process.env.NODE_ENV === 'production' && {
+    ...(NODE_ENV === 'production' && {
       secure: true,
     }),
     httpOnly: true,
@@ -169,7 +177,7 @@ exports.protect = async (req, res, next) => {
       throw new Error('You are not logged in. Login to get access');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const store = await Store.findById(decoded.id);
 
     if (!store) {
@@ -218,31 +226,10 @@ exports.forgotPassword = async (req, res, next) => {
       'host'
     )}/api/v1/auth/reset-password/${resetToken}`;
 
-    let message = `
-      Forgot your password? Send a patch request with your new password to: <RESET_TOKEN_URL>. If you did not make this request, please ignore this email
-    `;
-
-    const emailOptions = {
-      email: store.email,
-      subject: 'Your password Reset Token (Expires in 10mins)',
-      message: message.replace('<RESET_TOKEN_URL>', RESET_URL).trim(),
-    };
-
-    try {
-      await emailService(emailOptions);
-      res.status(200).json({
-        status: 'success',
-        message: 'Token Sent',
-      });
-    } catch (err) {
-      store.passwordResetToken = undefined;
-      store.passwordResetTokenExpires = undefined;
-      await store.save({ validateBeforeSave: false });
-
-      return next(
-        new Error('There was an error sending the email, try again later')
-      );
-    }
+    res.status(200).json({
+      status: 'success',
+      resetUrl: RESET_URL,
+    });
   } catch (err) {
     next(err);
   }
@@ -314,15 +301,33 @@ exports.activateStore = async (req, res, next) => {
       validateBeforeSave: false,
     });
 
-    res.status(200).json({
-      status: 'success',
-      message: 'Store activated',
-    });
+    res.status(302).redirect('https://zurimed.netlify.app/login.html');
   } catch (err) {
     next(err);
   }
 };
 
-exports.showTemplate = (req, res, next) => {
-  res.render('views/emails/welcome.ejs', {});
+exports.contactMail = async (req, res, next) => {
+  try {
+    const { fullname, designation, contact_type, comment, email } = req.body;
+    let message = `
+    Full name: ${fullname}
+    Designation: ${designation}
+    Contact Type: ${contact_type}
+    Comment: ${comment}`;
+    const emailOptions = {
+      from_email: email,
+      email: EMAIL_SENDER,
+      subject: 'Feedback Mail',
+      message,
+    };
+    await emailService(emailOptions);
+    res.status(200).json({
+      status: 'success',
+      message: 'Email sent successfully',
+      data: null,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
