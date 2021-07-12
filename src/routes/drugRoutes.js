@@ -1,4 +1,4 @@
-const { Router } = require("express");
+const router = require("express").Router();
 const {respondJSON} = require("../controllers/responseHandler");
 const { protect } = require("../controllers/authController");
 const {
@@ -11,7 +11,6 @@ const {
   search_drug,
   update_drugs,
 } = require("../controllers/drugController");
-const router = Router();
 
 router.post("/create", protect, add_drug, respondJSON);
 router.put("/available", protect, toogle_availability, respondJSON);

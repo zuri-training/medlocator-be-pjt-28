@@ -76,6 +76,17 @@ exports.register = async (req, res, next) => {
     const { name, email, password, passwordConfirm, address, contact, geometry, place_id } =
       req.body;
 
+    if(password !== passwordConfirm){
+      const err = new Error("Passwords do not match");
+      err.status = 400;
+      throw err;
+    }
+    if(!address){
+      const err = new Error("Address is required");
+      err.status = 400;
+      throw err;
+    }
+
     const store = await Store({
       name,
       email,
@@ -126,15 +137,21 @@ exports.login = async (req, res, next) => {
 
     const store = await Store.findOne({ email }).select('+password');
 
-    if (!store.active) {
-      throw new Error('This store is not active');
+    if(!store){
+      next(new Error('This email is not registered'));
     }
 
-    if (!(store && (await store.passwordsMatch(password, store.password)))) {
-      throw new Error('Incorrect email or password');
+    else if (!store.active) {
+      next(new Error('This store is not active'));
     }
 
-    sendToken(store, 200, res);
+    else if (!(store && (await store.passwordsMatch(password, store.password)))) {
+      next(new Error('Incorrect email or password'));
+    }
+
+    else {
+      sendToken(store, 200, res);
+    }
   } catch (err) {
     next(err);
   }

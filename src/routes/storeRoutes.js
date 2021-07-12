@@ -1,6 +1,6 @@
+const router = require('express').Router();
 const {protect} = require('../controllers/authController');
 const {forwardHandler, checkCoords} = require("../controllers/locationController");
-const router = require('express').Router();
 const {
   getOneStore,
   updateStore,
