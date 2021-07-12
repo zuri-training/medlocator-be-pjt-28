@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Fira Sans', sans-serif;
+      }
+
+      header {
+        font-size: 2rem;
+      }
+      strong {
+        color: hsl(240, 56%, 50%);
+      }
+
+      small {
+        font-size: 0.9rem;
+      }
+
+      .container {
+        width: 900px;
+        max-width: 90%;
+        margin: auto;
+        padding: 1em;
+      }
+
+      .underline {
+        border-bottom: 4px solid hsl(240, 56%, 50%);
+        display: inline-block;
+      }
+    </style>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <strong class="underline">Welcome</strong>
+        <p>
+          <small>Thank you for choosing Medlocator</small>
+        </p>
+      </header>
+      <p>
+        Welcome to this service, please click this link:
+        <a href="<%=url%>"><%=url%></a> to activate your account and complete
+        your registration process
+      </p>
+    </div>
+  </body>
+</html>

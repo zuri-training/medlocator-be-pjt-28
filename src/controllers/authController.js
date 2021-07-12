@@ -1,27 +1,55 @@
 const crypto = require('crypto');
+const { htmlToText } = require('html-to-text');
+const ejs = require('ejs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const Store = require('../models/Store');
 
-// Email Service
-const emailService = async ({ email, subject, message }) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    auth: {
-      user: process.env.EMAIL_USENAME,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
+class Email {
+  constructor(store, url) {
+    this.to = store.email;
+    this.storeName = store.name;
+    this.url = url;
+    this.from = `${process.env.EMAIL_SENDER}`;
+  }
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_SENDER,
-    to: email,
-    subject,
-    text: message,
-  });
-};
+  newTransport() {
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      auth: {
+        user: process.env.EMAIL_USENAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+  }
+
+  async send(template, subject) {
+    const html = await ejs.renderFile(
+      `${__dirname}/../views/emails/${template}.ejs`,
+      {
+        store: this.storeName,
+        url: this.url,
+        subject,
+      }
+    );
+
+    const emailOptions = {
+      from: this.from,
+      to: this.to,
+      subject,
+      html,
+      // text: htmlToText(html),
+    };
+
+    await this.newTransport().sendMail(emailOptions);
+  }
+
+  async sendWelcome() {
+    await this.send('welcome', 'Welcome');
+  }
+}
 
 // Generate JWT token
 const genToken = ({ _id: id }) =>
@@ -46,20 +74,13 @@ const sendToken = (store, statusCode, res) => {
 
   store.password = undefined;
   store.activationKey = undefined;
+  store.activationKeyExpires = undefined;
 
   res.status(statusCode).json({
     status: 'success',
     token,
     store,
   });
-};
-
-const generateRandomId = () => {
-  const chars = [
-    ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcddefghijklmopqrstuvwxyz',
-  ];
-  return [...Array(50)].map(i => chars[(Math.random() * chars.length) | 0])
-    .join``;
 };
 
 // @desc  Register a store
@@ -78,7 +99,6 @@ exports.register = async (req, res, next) => {
       passwordConfirm,
       address,
       contact,
-      activationKey: generateRandomId(),
     });
 
     await store.save();
@@ -87,17 +107,16 @@ exports.register = async (req, res, next) => {
       'host'
     )}/api/v1/auth/activate/${store.activationKey}`;
 
-    let message = `
-      Send a get request to: <ACTIVATION_URL>. to activate your account
-    `;
-
-    const emailOptions = {
-      email: store.email,
-      subject: 'Confirm Your Account',
-      message: message.replace('<ACTIVATION_URL>', ACTIVATION_URL).trim(),
-    };
-
-    await emailService(emailOptions);
+    try {
+      await new Email(store, ACTIVATION_URL).sendWelcome();
+    } catch (error) {
+      store.activationKey = undefined;
+      store.activationKeyExpires = undefined;
+      await store.save({
+        validateBeforeSave: false,
+      });
+      return next(new Error('An error occured sending the email'));
+    }
 
     sendToken(store, 200, res);
   } catch (err) {
@@ -134,8 +153,9 @@ exports.login = async (req, res, next) => {
 };
 
 exports.protect = async (req, res, next) => {
-  let token;
   try {
+    let token;
+
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith('Bearer')
@@ -284,9 +304,12 @@ exports.activateStore = async (req, res, next) => {
   try {
     const store = await Store.findOne({
       activationKey: req.params.activationKey,
+      activationKeyExpires: { $gt: Date.now() },
     });
 
     store.active = true;
+    store.activationKey = undefined;
+    store.activationKeyExpires = undefined;
     await store.save({
       validateBeforeSave: false,
     });
@@ -298,4 +321,8 @@ exports.activateStore = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.showTemplate = (req, res, next) => {
+  res.render('views/emails/welcome.ejs', {});
 };

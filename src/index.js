@@ -7,6 +7,8 @@ const dbSetup = require('./db');
 const { PORT } = require('./config/constants');
 const port = process.env.port || PORT;
 
+const { showTemplate } = require('./controllers/authController');
+
 // Connect to the database
 dbSetup();
 
@@ -15,6 +17,9 @@ const app = express();
 
 // Use the cors package
 app.use(cors());
+
+app.set('views', './src/views');
+app.set('view engine', 'ejs');
 
 // Parse Cookie
 app.use(cookieParser());
