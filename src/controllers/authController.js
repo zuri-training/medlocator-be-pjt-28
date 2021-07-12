@@ -97,8 +97,19 @@ const sendToken = (store, statusCode, res) => {
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, passwordConfirm, address, contact } =
+    const { name, email, password, passwordConfirm, address, contact, geometry, place_id } =
       req.body;
+
+    if(password !== passwordConfirm){
+      const err = new Error("Passwords do not match");
+      err.status = 400;
+      throw err;
+    }
+    if(!address){
+      const err = new Error("Address is required");
+      err.status = 400;
+      throw err;
+    }
 
     const store = await Store({
       name,
@@ -106,7 +117,10 @@ exports.register = async (req, res, next) => {
       password,
       passwordConfirm,
       address,
+      geometry,
       contact,
+      place_id,
+      activationKey: generateRandomId(),
     });
 
     await store.save();
@@ -146,15 +160,21 @@ exports.login = async (req, res, next) => {
 
     const store = await Store.findOne({ email }).select('+password');
 
-    if (!store.active) {
-      throw new Error('This store is not active');
+    if(!store){
+      next(new Error('This email is not registered'));
     }
 
-    if (!(store && (await store.passwordsMatch(password, store.password)))) {
-      throw new Error('Incorrect email or password');
+    else if (!store.active) {
+      next(new Error('This store is not active'));
     }
 
-    sendToken(store, 200, res);
+    else if (!(store && (await store.passwordsMatch(password, store.password)))) {
+      next(new Error('Incorrect email or password'));
+    }
+
+    else {
+      sendToken(store, 200, res);
+    }
   } catch (err) {
     next(err);
   }
@@ -300,7 +320,6 @@ exports.activateStore = async (req, res, next) => {
     await store.save({
       validateBeforeSave: false,
     });
-
     res.status(302).redirect('https://zurimed.netlify.app/login.html');
   } catch (err) {
     next(err);
@@ -331,3 +350,29 @@ exports.contactMail = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.contactMail = async (req,res,next) => {
+  try{
+    const{fullname, designation, contact_type, comment, email} = req.body;
+    let message = `
+    Full name: ${fullname}
+    Designation: ${designation}
+    Contact Type: ${contact_type}
+    Comment: ${comment}`;
+    const emailOptions = {
+      from_email: email,
+      email: EMAIL_SENDER,
+      subject: "Feedback Mail",
+      message
+    }
+    await emailService(emailOptions);
+    res.status(200).json({
+      status: "success",
+      message: "Email sent successfully",
+      data: null
+    });
+  }
+  catch(err){
+    next(err);
+  }
+}

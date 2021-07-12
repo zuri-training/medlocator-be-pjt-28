@@ -1,3 +1,4 @@
+const router = require('express').Router();
 const {
   logout,
   login,
@@ -6,11 +7,15 @@ const {
   resetPassword,
   showTemplate,
   activateStore,
+  contactMail
 } = require('../controllers/authController');
-const router = require('express').Router();
+const { forwardHandler, checkCoords } = require("../controllers/locationController");
+const contactBuilder = require("../middlewares/contactBuilder");
 
-router.post('/register', register);
+router.post('/register', checkCoords, forwardHandler, contactBuilder, register);
 router.post('/login', login);
+
+router.post("/contact",contactMail);
 
 router.post('/forgot-password', forgotPassword);
 router.patch('/reset-password/:resetToken', resetPassword);

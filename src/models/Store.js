@@ -14,7 +14,7 @@ const storeSchema = new Schema({
     required: [true, 'Enter an email'],
     validate: {
       validator: function (value) {
-        return /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value.toLowerCase());
+        return /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,}\.*[a-zA-Z]*$/.test(value.toLowerCase());
       },
       message: 'Enter a valid email',
     },
@@ -41,6 +41,14 @@ const storeSchema = new Schema({
   address: {
     type: String,
     required: true,
+  },
+  geometry: {
+    lat: {
+      type: Number
+    },
+    lng: {
+      type: Number
+    }
   },
   contact: {
     owner: {
@@ -75,6 +83,7 @@ const storeSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  place_id: String
 });
 
 const generateRandomId = () => {

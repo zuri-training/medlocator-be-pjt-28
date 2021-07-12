@@ -4,13 +4,13 @@
   "description": "An API for the MedLocator app",
   "main": "./src/index.js",
   "scripts": {
-    "start": "node ./src/index.js",
-    "server": "nodemon ./src/index.js",
+    "start": "node src/index.js",
+    "server": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zuri-training/medlocator-be-pjt-28.git"
+    "url": "git+https://github.com/zuri-training/medlocator-be-pjt-28"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +22,8 @@
     "nodemon": "^2.0.7"
   },
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.1.16",
+    "@turf/distance": "^6.5.0",
     "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",
@@ -32,5 +34,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.13",
     "nodemailer": "^6.6.2"
+  },
+  "engines": {
+    "node": "12.18.3",
+    "npm": "6.14.6"
   }
 }
