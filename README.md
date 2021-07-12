@@ -10,8 +10,7 @@ Some of the technologies we use to build our software:
 
 - Node.js
 - MongoDB
-- Mapbox API
-- Mapbox GL API
+- Google Maps API
 - Turf.js
 
 ---

@@ -30,7 +30,10 @@ forwardHandler: (req,res,next) => {
             next();
         })
         .catch(err => {
-            next(err.data);
+            const customErr = new Error();
+            customErr.message = err.response.data.error_message;
+            customErr.status = err.response.status;
+            next(customErr);
         })
     }
     const {location, address} = req.body;
@@ -99,7 +102,7 @@ sortStores: (req,res,next) => {
             }
         } else {
             req.api_res = {
-                status: "success",
+                status: "failure",
                 code: 200,
                 body: stores,
                 message: "Drug not found"

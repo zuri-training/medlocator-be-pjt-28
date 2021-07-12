@@ -1,5 +1,7 @@
+const util = require("util");
 const forErrorControl = {
     noResourceFound: (req, res)=> {
+        console.log("triggered 404");
         let errObject = {
             status: 404,
             message: "No Resource Found",
@@ -9,10 +11,12 @@ const forErrorControl = {
     },
 
     internalSerevrError: (err, req, res, next)=> {
-        let objectError;
+        console.error(`ERROR: ${err.stack}`);
+        let objectError = {};
+        let code = err.status || 500;
         if (err) {
             objectError = {
-                status: 500,
+                status: code,
                 message: err.message,
                 data: null
             };
@@ -24,8 +28,7 @@ const forErrorControl = {
                 data: null
             };
         }
-        res.status(500)
-        .json(objectError);
+        res.status(code).json(objectError);
     }
 };
 

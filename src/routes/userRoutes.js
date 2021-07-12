@@ -1,3 +1,4 @@
+const router = require('express').Router();
 const {
   logout,
   login,
@@ -9,7 +10,6 @@ const {
 } = require('../controllers/authController');
 const { forwardHandler, checkCoords } = require("../controllers/locationController");
 const contactBuilder = require("../middlewares/contactBuilder");
-const router = require('express').Router();
 
 router.post('/register', checkCoords, forwardHandler, contactBuilder, register);
 router.post('/login', login);
