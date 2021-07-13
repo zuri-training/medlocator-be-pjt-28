@@ -98,6 +98,7 @@ sortStores: (req,res,next) => {
                 status: "success",
                 code: 200,
                 body: stores,
+                location: location,
                 message: "Drug stores sorted"
             }
         } else {
