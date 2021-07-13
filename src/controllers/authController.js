@@ -120,7 +120,6 @@ exports.register = async (req, res, next) => {
       geometry,
       contact,
       place_id,
-      activationKey: generateRandomId(),
     });
 
     await store.save();
