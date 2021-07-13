@@ -126,7 +126,7 @@ exports.register = async (req, res, next) => {
 
     const ACTIVATION_URL = `${req.protocol}://${req.get(
       'host'
-    )}/api/v1/auth/activate/${store.activationKey}`;
+    )}/api/v1/user/activate/${store.activationKey}`;
 
     try {
       await new Email(store, ACTIVATION_URL).sendWelcome();
@@ -349,29 +349,3 @@ exports.contactMail = async (req, res, next) => {
     next(err);
   }
 };
-
-exports.contactMail = async (req,res,next) => {
-  try{
-    const{fullname, designation, contact_type, comment, email} = req.body;
-    let message = `
-    Full name: ${fullname}
-    Designation: ${designation}
-    Contact Type: ${contact_type}
-    Comment: ${comment}`;
-    const emailOptions = {
-      from_email: email,
-      email: EMAIL_SENDER,
-      subject: "Feedback Mail",
-      message
-    }
-    await emailService(emailOptions);
-    res.status(200).json({
-      status: "success",
-      message: "Email sent successfully",
-      data: null
-    });
-  }
-  catch(err){
-    next(err);
-  }
-}
