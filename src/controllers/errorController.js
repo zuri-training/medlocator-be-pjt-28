@@ -1,7 +1,6 @@
 const util = require("util");
 const forErrorControl = {
     noResourceFound: (req, res)=> {
-        console.log("triggered 404");
         let errObject = {
             status: 404,
             message: "No Resource Found",
