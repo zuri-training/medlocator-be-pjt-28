@@ -20,9 +20,8 @@ const {
 class Email {
   constructor(store, url) {
     this.to = store.email;
-    this.storeName = store.name;
     this.url = url;
-    this.from = `${EMAIL_SENDER}`;
+    this.from = EMAIL_SENDER;
   }
 
   newTransport() {
@@ -36,12 +35,13 @@ class Email {
     });
   }
 
-  async send(template, subject) {
+  async send(template, subject, body) {
     const html = await ejs.renderFile(
       `${__dirname}/../views/emails/${template}.ejs`,
       {
         url: this.url,
         subject,
+        body
       }
     );
 
@@ -56,7 +56,7 @@ class Email {
   }
 
   async sendWelcome() {
-    await this.send('welcome', 'Welcome');
+    await this.send('email-verification','Email Verification');
   }
 }
 
@@ -328,18 +328,8 @@ exports.activateStore = async (req, res, next) => {
 exports.contactMail = async (req, res, next) => {
   try {
     const { fullname, designation, contact_type, comment, email } = req.body;
-    let message = `
-    Full name: ${fullname}
-    Designation: ${designation}
-    Contact Type: ${contact_type}
-    Comment: ${comment}`;
-    const emailOptions = {
-      from_email: email,
-      email: EMAIL_SENDER,
-      subject: 'Feedback Mail',
-      message,
-    };
-    await emailService(emailOptions);
+    const body = { fullname, designation, contact_type, comment, email }
+    await new Email({email:EMAIL_USERNAME}, null).send('feedback','User Feedback',body);
     res.status(200).json({
       status: 'success',
       message: 'Email sent successfully',
