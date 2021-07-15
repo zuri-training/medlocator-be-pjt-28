@@ -1,8 +1,47 @@
-<%- include('../partials/head')%>
-        <h2 style="color: #000000B2; font-size: 2rem; font-weight: 400; font-family:'Josefin Sans', sans-serif;">Verify your e-mail to
-            finish signing up</h2>
-        <p style="color:grey; font-weight: 300; font-family:'Josefin Sans', sans-serif;">Please confirm that you want to
-            use this as your MedLocator account e-mail address by clicking on the button below.
-        </p>
-        <a href="<%= url %>" style="display: block; width: 90%; margin:2.5rem auto; font-family:'Josefin Sans', sans-serif; color: #FFF; border: 1px solid #0CB2B2; padding: 0.9rem; background: #0CB2B2; text-decoration: none;">VERIFY YOUR EMAIL</a>
-<%- include('../partials/tail')%>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <title><%= subject %></title>
+</head>
+
+<body>
+   <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%;" align="center" bgcolor="#F5F5F5">
+    <tr>
+        <td style="background-color: #f5f5f5; height: 15vh; padding: 15px; text-align: center; vertical-align: middle;">
+            <h1 style="font-family: 'Josefin Sans', sans-serif; font-size: 2.5rem;"><span style="color: #0CB2B2;">Med</span>Locator</h1>
+        </td>
+    </tr>
+    <tr>
+        <td style="background-color: #fff; height: 15vh; padding: 15px; text-align: center; vertical-align: middle;">
+            <h2 style="font-family: 'Josefin Sans', sans-serif;font-weight: 400; font-size: 3rem; color: #000000B2;">Thanks for signing up!</h2>
+            <p style="font-family: 'Josefin Sans', sans-serif; font-size: 1.5rem; color: #000000B2; padding: 2rem 0;">Please verify your email address in order to get started using MedLocator.</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="background-color: #fff; text-align: center; height: 15vh;">
+            <a href="<%= url %>" style="display: inline-block; padding: 1rem 2rem; background: #0CB2B2; font-family: 'Josefin Sans', sans-serif; color: #fff; font-weight: 600; text-decoration: none; border: 1px solid #0CB2B2;">VERIFY EMAIL NOW</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="background-color: #fff; text-align: center; height: 15vh;">
+            <p style="font-family: 'Josefin Sans', sans-serif; font-size: 1.2rem; color: #000000B2; padding: 1rem 0;">or verify using this link:</p>
+            <a href="<%= url %>"" style="display: inline-block; font-family: 'Josefin Sans', sans-serif; margin-bottom: 2.5rem;"><%= url %>"</a>
+            <h3 style="font-family: 'Josefin Sans', sans-serif; font-size: 1.5rem; color: #000000B2;">Need Help?</h3>
+            <p style="font-family: 'Josefin Sans', sans-serif; font-size: 1.2rem; line-height: 1.3; color: #000000B2; padding: 1rem 0;">Please send a feedback or bug info <br>to <a href="">medlocator01@gmail.com</a></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="background-color: #f5f5f5; text-align: center; height: 15vh;">
+            <p style="font-family: 'Josefin Sans', sans-serif; color: #000000B2;">&copy; 2021, MedLocator. All right reserved</p>
+        </td>
+    </tr>
+   </table>
+</body>
+</html>
+ 
